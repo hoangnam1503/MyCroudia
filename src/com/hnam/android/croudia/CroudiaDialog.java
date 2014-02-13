@@ -36,7 +36,6 @@ public class CroudiaDialog extends Dialog {
 
     private String mUrl;
     private CrDialogListener mListener;
-    private ProgressDialog mSpinner;
     private WebView mWebView;
     private LinearLayout mContent;
     private TextView mTitle;
@@ -54,13 +53,7 @@ public class CroudiaDialog extends Dialog {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mSpinner = new ProgressDialog(getContext());
-        
-        mSpinner.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        mSpinner.setMessage("Loading...");
-
         mContent = new LinearLayout(getContext());
-        
         mContent.setOrientation(LinearLayout.VERTICAL);
         
         setUpTitle();
@@ -98,7 +91,6 @@ public class CroudiaDialog extends Dialog {
         mWebView.setVerticalScrollBarEnabled(false);
         mWebView.setHorizontalScrollBarEnabled(false);
         mWebView.setWebViewClient(new CroudiaWebViewClient());
-        mWebView.getSettings().setJavaScriptEnabled(true);
         mWebView.loadUrl(mUrl);
         mWebView.setLayoutParams(FILL);
         
@@ -139,7 +131,6 @@ public class CroudiaDialog extends Dialog {
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
             Log.d(TAG, "Loading URL: " + url);
             super.onPageStarted(view, url, favicon);
-            mSpinner.show();
         }
 
         @Override
@@ -149,7 +140,6 @@ public class CroudiaDialog extends Dialog {
             if (title != null && title.length() > 0) {
                 mTitle.setText(title);
             }
-            mSpinner.dismiss();
         }
 
     }

@@ -2,6 +2,7 @@ package com.hnam.android.croudia;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -11,12 +12,13 @@ import android.widget.Toast;
 import com.hnam.android.croudia.CroudiaApp.CrDialogListener;
 
 public class MainActivity extends Activity {
-	private String CONSUMER_KEY = "eeb2e6a1bdd30b405f301633bab86c1fbb2946cb393c48ee2a8bb1bcbfbf985d";
-	private String CONSUMER_SECRET = "d3cf1af429666aaa80e2522bf299047d5ebb5f3ae1a6dee55d3f9c979cd086f7";
-
 	private Button mTestBtn;
 	public String authUrl;
 	private CroudiaApp mCroudia;
+	private String  mRedirectUrl = "";
+	private static final String mCunsomerKey = "eeb2e6a1bdd30b405f301633bab86c1fbb2946cb393c48ee2a8bb1bcbfbf985d";
+	private static final String mSecretkey = "d3cf1af429666aaa80e2522bf299047d5ebb5f3ae1a6dee55d3f9c979cd086f7";
+	private static final String mState = "77f094743bdb55c0f97";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +33,7 @@ public class MainActivity extends Activity {
 				onLoginClick();
 			}
 		});
-		mCroudia = new CroudiaApp(this, CONSUMER_KEY, CONSUMER_SECRET);		
+		mCroudia = new CroudiaApp(this, mCunsomerKey, mSecretkey, mState);		
 		mCroudia.setListener(mTwLoginDialogListener);		
 	} 
 
@@ -52,6 +54,8 @@ public class MainActivity extends Activity {
 		
 		@Override
 		public void onError(String value) {
+			mRedirectUrl = value;
+			Log.e("Croudia Debug", mRedirectUrl);
 			Toast.makeText(MainActivity.this, "Twitter connection failed", Toast.LENGTH_LONG).show();
 		}
 	};

@@ -1,7 +1,8 @@
 package com.hnam.android.library;
 
 public class Constant {
-	public static final String CONSUMER_KEY = "abce9d6b37e2494bee35c36ad350043b64dde0697ecbb4a47f7c30b01308c6ac";
-	public static final String CONSUMER_SECRET = "74c6b7d09d91a75f4a6af426b623e159850e999c556ad5cb58425f960b04e71a";
-	public static final String CALLBACK_URL = "myapp://oauth";
+	public static final String CONSUMER_KEY = "eeb2e6a1bdd30b405f301633bab86c1fbb2946cb393c48ee2a8bb1bcbfbf985d";
+	public static final String CONSUMER_SECRET = "d3cf1af429666aaa80e2522bf299047d5ebb5f3ae1a6dee55d3f9c979cd086f7";
+	public static final String CALLBACK_URL = "croudiaapp://callback";
+	public static final String TAG = "Croudia Debug";
 }

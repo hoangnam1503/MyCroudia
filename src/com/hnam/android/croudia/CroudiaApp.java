@@ -6,49 +6,43 @@ import java.net.URLDecoder;
 
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 import oauth.signpost.commonshttp.CommonsHttpOAuthProvider;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.view.Window;
 
 public class CroudiaApp {
-	private String mConsumerKey;
-	private String mSecretKey;
-	private CommonsHttpOAuthConsumer mHttpOauthConsumer;
-	private CommonsHttpOAuthProvider mHttpOauthProvider;
-	public static final String CALLBACK_URL = "MyCroudia://callback";
-	private ProgressDialog mProgressDlg;
+	public static final String CALLBACK_URL = "croudiaapp://callback";
 	private Context mContext;
 	private static final String TAG = "CroudiaApp";
 	private CrDialogListener mListener;
+	private CommonsHttpOAuthConsumer mHttpOauthConsumer;
+	private CommonsHttpOAuthProvider mHttpOauthprovider;
+	private String mConsumerKey;
+	private String mSecretKey;
+	private String mState;
 	
-	public CroudiaApp(Context context, String consumerKey, String secretKey) {
+	public CroudiaApp(Context context, String consumerKey, String secretKey, String state) {
 		this.mContext = context;
-		mProgressDlg = new ProgressDialog(context);
-		mProgressDlg.requestWindowFeature(Window.FEATURE_NO_TITLE);
-		
-		mConsumerKey = consumerKey;
-		mSecretKey = secretKey;
-		
+
+		mConsumerKey 	= consumerKey;
+		mSecretKey	 	= secretKey;
+		mState  		= state;
+	
 		mHttpOauthConsumer = new CommonsHttpOAuthConsumer(mConsumerKey, mSecretKey);
-		mHttpOauthProvider = new CommonsHttpOAuthProvider("https://api.croudia.com/oauth/authorize?response_type=code&client_id=eeb2e6a1bdd30b405f301633bab86c1fbb2946cb393c48ee2a8bb1bcbfbf985d&state=77f094743bdb55c0f97",
-				"https://api.croudia.com/oauth/token",
-			    "https://api.croudia.com/oauth/authorize");
+		mHttpOauthprovider = new CommonsHttpOAuthProvider("https://api.croudia.com/oauth/authorize?response_type=code&client_id=" + mConsumerKey + "&state=" + mState,
+													 "https://api.croudia.com/oauth/token",
+													 "https://api.croudia.com/oauth/authorize");
 	}
 	
 	public void authorize() {
-		mProgressDlg.setMessage("Initializing...");
-		mProgressDlg.show();
-		
 		new Thread() {
 			public void run() {
 				String authUrl = "";
 				int what = 1;
 				
 				try {
-					authUrl = "https://api.croudia.com/oauth/authorize?response_type=code&client_id=eeb2e6a1bdd30b405f301633bab86c1fbb2946cb393c48ee2a8bb1bcbfbf985d&state=77f094743bdb55c0f97";
+					authUrl = "https://api.croudia.com/oauth/authorize?response_type=code&client_id="+ mConsumerKey + "&state=" + mState;
 					what = 0;
 					Log.e(TAG, "Request token url " + authUrl);
 				} catch (Exception e) {
@@ -61,26 +55,24 @@ public class CroudiaApp {
 	}
 
 	public void processToken(String callbackUrl)  {
-		mProgressDlg.setMessage("Finalizing ...");
-		mProgressDlg.show();
-		
 		final String verifier = getVerifier(callbackUrl);
 
 		new Thread() {
 			@Override
 			public void run() {
 				int what = 1;
-				
+
 				try {
-					mHttpOauthProvider.retrieveAccessToken(mHttpOauthConsumer, verifier);
-			        
+					mHttpOauthprovider.retrieveAccessToken(mHttpOauthConsumer, verifier);
+					mAccessToken = new AccessToken(mHttpOauthConsumer.getToken(), mHttpOauthConsumer.getTokenSecret());
+					configureToken();
+					User user = mTwitter.verifyCredentials();
+			        mSession.storeAccessToken(mAccessToken, user.getName());
 			        what = 0;
 				} catch (Exception e){
 					Log.d(TAG, "Error getting access token");
-					
 					e.printStackTrace();
 				}
-				
 				mHandler.sendMessage(mHandler.obtainMessage(what, 2, 0));
 			}
 		}.start();
@@ -117,6 +109,7 @@ public class CroudiaApp {
 	}
 	
 	private void showLoginDialog(String url) {
+		Log.e(TAG, url);
 		final CrDialogListener listener = new CrDialogListener() {
 			@Override
 			public void onComplete(String value) {
@@ -135,8 +128,6 @@ public class CroudiaApp {
 	private Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
-			mProgressDlg.dismiss();
-			
 			if (msg.what == 1) {
 				if (msg.arg1 == 1)
 					mListener.onError("Error getting request token");
